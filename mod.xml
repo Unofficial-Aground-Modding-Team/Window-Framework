@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mod>
+  <name>Window Framework</name>
+  <description>A framework (well, more like some random bits of code) to make custom windows</description>
+  <author>Apprentice Alchemist</author>
+  <version>Alpha</version>
+  <init>
+      <include id="framework/framework.xml"/>
+  </init>
+</mod>
