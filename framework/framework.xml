@@ -2,18 +2,23 @@
 <data>
   <action>
     WND = {};
-    WND.init = function(){
-      WND.window.factory = new com.davidmaletz.mining.ui.WindowFactory();
-      WND.label.factory = new com.davidmaletz.mining.ui.LabelFactory(false);
-  	  WND.icon.factory = new com.davidmaletz.mining.ui.LabelFactory(true);
-  		WND.button.factory = new com.davidmaletz.mining.ui.MyButtonFactory();
-    }
+      WND.window_factory = new com.davidmaletz.mining.ui.WindowFactory();
+      WND.label_factory = new com.davidmaletz.mining.ui.LabelFactory(false);
+  	  WND.icon_factory = new com.davidmaletz.mining.ui.LabelFactory(true);
+  		WND.button_factory = new com.davidmaletz.mining.ui.MyButtonFactory();
+
     function getContainer(){
     if(getLocalPlayer() == null) throw "Window Framework : Failed to obtain container!";
     return (getLocalPlayer != null) ? getLocalPlayer().renderer.stage.getChildAt(0).getChildAt(0).getChildAt(1) : null;
     }
-    function createAncientWindow(width,height){
-      return new com.davidmaletz.controls.ClickableWindow(getContainer(),your.window.factory.instance.create(w,h),true,false,false);
+    function createAncientWindow(width,height,close){
+      var a = new com.davidmaletz.controls.ClickableWindow(getContainer(),WND.window_factory.create(width,height),true,false,false);
+      if(close == true){
+      var close = new com.davidmaletz.controls.CloseButton(a,a.getWidth(),0);
+      a.addChild(close);
+      a.clickables.clickables.addClickable(close,this,1);
+      }
+      return a;
     }
 
 // a = new com.davidmaletz.controls.ClickableWindow(c,new com.davidmaletz.tiles.TileDrawable(Tile.get("nav.bg.star")),true,false,false);
@@ -24,9 +29,10 @@
 // a = new com.davidmaletz.controls.ClickableWindow(c,your.window.factory.instance.create(100,100),true,false,false);
 
   </action>
+  <include id="map.xml"/>
   <onLoad>
     <action>
-      WND.init();
+
     </action>
   </onLoad>
 </data>
