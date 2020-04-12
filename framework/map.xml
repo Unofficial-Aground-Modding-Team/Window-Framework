@@ -7,11 +7,6 @@
     }
   </action>
   <action>
-    WND = {};
-    WND.instance = null;
-    function setWNDInstance(inst){
-      WND.instance = inst;
-    }
     function getFPS(xml,default_fps) {
     	if(xml.exists("fps")) {
     		return Std.parseFloat(xml.get("fps"));
@@ -19,59 +14,12 @@
     		return default_fps;
     	}
     }
+    function makeTileDrawable(tile){
+      return new com.davidmaletz.tiles.TileDrawable(Tile.get(tile));
+    }
     function makeClickable(handler,xml){
-      var thing = new openfl.display.Sprite();
-      thing.handler = handler;
-      var t = Tile.get(xml.exists("tile") ? xml.get("tile") : "star");
-      if(t != null) {
-        var anim = xml.get("animation");
-        if(anim != null) {
-          thing.addChild(new com.davidmaletz.tiles.render.StaticPlayAnimation(t,anim,getFPS(xml,10),true));
-        } else {
-          thing.addChild(Tile.makeIcon(t));
-        }
-      }
-      thing.selector = new com.davidmaletz.tiles.render.StaticPlayAnimation(Tile.get("nav.star"),"nav.star.select",10,true);
-      thing.selector.set_visible(false);
-      thing.addChild(thing.selector);
-      if(xml.exists("x")) {
-        thing.set_x(Std.parseInt(xml.get("x")));
-      }
-      if(xml.exists("y")) {
-        thing.set_y(Std.parseInt(xml.get("y")));
-      }
-      if(t == null) {
-        thing.bounds = new openfl.geom.Rectangle();
-      } else {
-        var tb = t.getTileBase();
-        var s1 = tb.sheet;
-        var f = s1.getFrame(tb.x,tb.y);
-        var r = s1.getTileRect2(tb.x,tb.y);
-        thing.bounds = new openfl.geom.Rectangle(thing.get_x() + tb.offsetX,thing.get_y() + tb.offsetY,r.width,r.height);
-        if(f != null) {
-          thing.bounds.x += f.offsetX;
-          thing.bounds.y += f.offsetY;
-        }
-      }
-      thing.getPos = function() {
-        return thing.bounds;
-      }
-      thing.onHover = function(hover) {
-        thing.selector.set_visible(hover);
-        if(thing.handler != null) {
-          thing.handler.onHover(this);
-        }
-      }
-      thing.onClick = function() {
-        if(thing.handler != null) {
-          thing.handler.onSelect(this.star);
-        }
-        return true;
-      }
-      thing.canSelect = function() {
-        return thing.get_visible();
-      }
-      return thing;
+      var area = new com.davidmaletz.mining.ui.StarRenderer(xml,handler);
+      return area;
     }
     // a = new com.davidmaletz.controls.ClickableWindow(c,new com.davidmaletz.tiles.TileDrawable(Tile.get("nav.bg.star")),true,false,false);
     // var b = new com.davidmaletz.mining.ui.TextButton(4,20,getText("common.ok"),function(){trace("OK!");}))
@@ -92,18 +40,16 @@
     }
     this.areas = []; for (area in this.xml.elementsNamed('mapArea')) this.areas.push(this.getAreaData(area));
   </data>
-  <data type="mapArea">
-
-  </data>
-  <mapArea id="default"/>
+  <data type="mapArea"/>
+  <mapArea id="test"/>
   <navMap id="wyrm_maze" bg="nav.bg.star" bg_anim="single" bgm="voyage">
-    <mapArea id="test" tile="wyrm_tunnel" animation="single" available="true" x="50" y="50"/>
+    <mapArea id="test" tile="wyrm_tunnel" animation="item6" available="true" x="50" y="50"/>
   </navMap>
-  <procedure id="wyrm_maze_map">
     <action>
+    function showWyrmMap(){
       var map = getData("navMap","wyrm_maze");
-      c = getLocalPlayer().renderer.stage.getChildAt(0).getChildAt(0).getChildAt(1);
-      a = new com.davidmaletz.controls.ClickableWindow(c,new com.davidmaletz.tiles.TileDrawable(Tile.get(map.bg)),true,false,false);
+      var c = getContainer();
+      var a = new com.davidmaletz.controls.ClickableWindow(c,makeTileDrawable(map.bg),true,false,false);
       a.close = function() {
     		if(a.parent != null && !a.hasTrack(AlphaKeyframe)) {
     			a.lerp(new AlphaKeyframe(0),10,a.doClose);
@@ -112,22 +58,27 @@
       a.onCancel = function() {
     		a.close();
     	}
-    	a.onSelect = function(item) {
+    	a.onSelect = function(?item) {
     		a.close();
     	}
-    	a.onHover = function(item) {
+    	a.onHover = function(?item) {
 
     	}
-    	a.isEnabled = function(item) {
+    	a.isEnabled = function(?item) {
     		return true;
     	}
       for (o in map.xml.elementsNamed("mapArea")){
-      // var tmp2 = makeClickable(a,o);
-      // a.addChild(tmp2);
-      // a.clickables.clickables.addClickable(tmp2);
+        try{
+      var tmp1 = getData("mapArea",o.get("id"));
+      tmp1.xml = new com.davidmaletz.faengfl.XmlDual(new com.davidmaletz.faengfl.XmlPath(tmp1.xml,"data/"),o);
+      var tmp2 = makeClickable(a,tmp1);
+      a.addChild(tmp2);
+      a.clickables.clickables.addClickable(tmp2);
+      }catch(e:Dynamic){trace(e);}
       }
-      // c.addDisplay(a);
-      setWNDInstance(a);
+      c.addDisplay(a);
+      WND.instance = a;
+
+      }
     </action>
-  </procedure>
 </apprenticealchemist>
