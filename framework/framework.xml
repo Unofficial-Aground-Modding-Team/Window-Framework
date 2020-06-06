@@ -8,10 +8,7 @@
   	WND.button_factory = new com.davidmaletz.mining.ui.MyButtonFactory();
     WND.windows = new StringMap();
     WND.instance = null;
-    function getContainer(){
-    if(getLocalPlayer() == null) throw "Window Framework : Failed to obtain container!";
-    return (getLocalPlayer != null) ? getLocalPlayer().renderer.stage.getChildAt(0).getChildAt(0).getChildAt(1) : null;
-    }
+    
     function createAncientWindow(width,height,close){
       var a = new com.davidmaletz.controls.ClickableWindow(getContainer(),WND.window_factory.create(width,height),true,false,false);
       if(close == true){
